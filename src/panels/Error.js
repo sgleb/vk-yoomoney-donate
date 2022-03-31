@@ -14,7 +14,7 @@ const Error = ({id, errCase}) => {
         default:
             errorText = '';
     }
-    // console.log(errCase);
+
     return (
         <Panel id={id}>
             <PanelHeader><Title level='2'>Ошибка</Title></PanelHeader>

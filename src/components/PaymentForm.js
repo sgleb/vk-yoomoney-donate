@@ -1,14 +1,21 @@
-import React, {Fragment, useState} from 'react';
+import React, {Fragment, useState, useEffect} from 'react';
 import {FormLayout, FormItem, Input, Button, Div, Textarea} from '@vkontakte/vkui';
 import PropTypes from "prop-types";
 
-const PaymentForm = ({id, wallet}) => {
-    const [sum, setSum] = useState(2);
-    const [aucs, setAucs] = useState(2);
+const PaymentForm = ({id, wallet, label, hashParams}) => {
+    const [sum, setSum] = useState(25);
+    const [aucs, setAucs] = useState('');
+    useEffect(() => {
+        if (hashParams.sum) {
+            setSum(hashParams.sum);
+        }
+        if (hashParams.aucs) {
+            setAucs(hashParams.aucs.slice(0, 150));
+        }
+    }, []);
 
     return (
         <Fragment>
-            кошелек={wallet}
             <FormLayout onSubmit={(e) => {
             }} id={id} target="_blank" method="POST" action="https://yoomoney.ru/quickpay/confirm.xml">
 
@@ -21,7 +28,12 @@ const PaymentForm = ({id, wallet}) => {
                 </FormItem>
 
                 <FormItem top="Лоты" bottom='до 150 знаков'>
-                    <Textarea placeholder="Введите номера лотов через запятую" maxLength='150' name="targets" required/>
+                    <Textarea placeholder="Введите номера лотов через запятую" maxLength='150' name="targets"
+                              value={aucs} onInput={(e) => {
+                        if (e.target.validity.valid || e.target.value.length <= 0) {
+                            setAucs(e.target.value)
+                        }
+                    }} required/>
                 </FormItem>
 
                 <FormItem>
@@ -33,7 +45,7 @@ const PaymentForm = ({id, wallet}) => {
                 <input type="hidden" name="receiver" value={wallet}/>
                 <input type="hidden" name="quickpay-form" value="donate"/>
                 <input type="hidden" name="paymentType" value="AC"/>
-                <input type="hidden" name="label" value="label"/>
+                <input type="hidden" name="label" value={label}/>
                 <input type="hidden" name="need-fio" value="false"/>
                 <input type="hidden" name="need-email" value="false"/>
                 <input type="hidden" name="need-phone" value="false"/>
@@ -46,6 +58,8 @@ const PaymentForm = ({id, wallet}) => {
 PaymentForm.propTypes = {
     id: PropTypes.string.isRequired,
     wallet: PropTypes.string.isRequired,
+    label: PropTypes.string.isRequired,
+    hashParams: PropTypes.object.isRequired,
 };
 
 export default PaymentForm;

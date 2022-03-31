@@ -16,6 +16,8 @@ const App = () => {
     const [popout, setPopout] = useState(<ScreenSpinner size='large'/>);
     const [errCase, setErrCase] = useState('');
     const [wallet, setWallet] = useState('');
+    const [label, setLabel] = useState('');
+    const [hashParams, setHashParams] = useState({});
 
     useEffect(() => {
         bridge.subscribe(({detail: {type, data}}) => {
@@ -32,6 +34,9 @@ const App = () => {
 
                 if (wallets[params.vk_group_id]?.wallet) {
                     setWallet(wallets[params.vk_group_id]?.wallet);
+                    setLabel(params.vk_user_id);
+                    const parsedHashParams = qs.parse(window.location.hash.slice(1));
+                    setHashParams(parsedHashParams);
                     setActivePanel('payment');
                 }
                 else {
@@ -49,10 +54,6 @@ const App = () => {
         fetchData();
     }, []);
 
-    const go = e => {
-        setActivePanel(e.currentTarget.dataset.to);
-    };
-
     return (
         <AdaptivityProvider>
             <AppRoot>
@@ -62,7 +63,7 @@ const App = () => {
                     </View>
                     <View activePanel={activePanel} id="view2" popout={popout}>
                         <Error id='error' errCase={errCase}/>
-                        <Payment id='payment' wallet={wallet}/>
+                        <Payment id='payment' wallet={wallet} label={label} hashParams={hashParams}/>
                     </View>
                 </Root>
             </AppRoot>
