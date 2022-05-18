@@ -10,7 +10,7 @@ const Payment = ({id, wallet, label, hashParams}) => {
             <PanelHeader>
                 <Title level="1">Оплата комиссии за лот</Title>
             </PanelHeader>
-            <Div><PaymentForm id='paymentForm' wallet={wallet} label={label} hashParams={hashParams}/></Div>
+            <Div><PaymentForm id='paymentForm' wallet={wallet} hashParams={hashParams}/></Div>
         </Panel>
     );
 };
@@ -19,7 +19,6 @@ const Payment = ({id, wallet, label, hashParams}) => {
 Payment.propTypes = {
     id: PropTypes.string.isRequired,
     wallet: PropTypes.string.isRequired,
-    label: PropTypes.string.isRequired,
     hashParams: PropTypes.object.isRequired,
 
 };

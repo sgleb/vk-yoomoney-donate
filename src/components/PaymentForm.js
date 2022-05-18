@@ -3,7 +3,7 @@ import {FormLayout, FormItem, Input, Button, Div, Textarea} from '@vkontakte/vku
 import PropTypes from "prop-types";
 import qs from 'querystring';
 
-const PaymentForm = ({id, wallet, label, hashParams}) => {
+const PaymentForm = ({id, wallet, hashParams}) => {
     const [sum, setSum] = useState(25);
     const [aucs, setAucs] = useState('');
     useEffect(() => {
@@ -11,7 +11,7 @@ const PaymentForm = ({id, wallet, label, hashParams}) => {
             setSum(hashParams.sum);
         }
         if (hashParams.aucs) {
-            setAucs(hashParams.aucs.slice(0, 150));
+            setAucs(hashParams.aucs.slice(0, 64));
         }
     }, []);
 
@@ -21,12 +21,12 @@ const PaymentForm = ({id, wallet, label, hashParams}) => {
                 e.preventDefault();
 
                 const params = {
-                    targets: aucs,
+                    targets: 'Оплата комиссии',
                     sum: sum,
                     receiver: wallet,
                     'quickpay-form': 'donate',
                     paymentType: 'AC',
-                    label: label,
+                    label: aucs,
                     'need-fio': false,
                     'need-email': false,
                     'need-phone': false,
@@ -48,13 +48,13 @@ const PaymentForm = ({id, wallet, label, hashParams}) => {
                         }
                     }}/>
                 </FormItem>
-                <FormItem top="Лоты" bottom='до 150 знаков'>
-                    <Textarea placeholder="Введите номера лотов через запятую" maxLength='150' name="targets"
-                              value={aucs} onInput={(e) => {
-                        if (e.target.validity.valid || e.target.value.length <= 0) {
-                            setAucs(e.target.value)
-                        }
-                    }} required/>
+                <FormItem top="Лоты" bottom='до 64 знаков'>
+                    <Textarea placeholder="Введите номера лотов через запятую" maxLength='64' value={aucs}
+                              onInput={(e) => {
+                                  if (e.target.validity.valid || e.target.value.length <= 0) {
+                                      setAucs(e.target.value)
+                                  }
+                              }} required/>
                 </FormItem>
                 <FormItem>
                     <Div style={{display: "flex", justifyContent: "space-around"}}>
@@ -68,7 +68,6 @@ const PaymentForm = ({id, wallet, label, hashParams}) => {
 PaymentForm.propTypes = {
     id: PropTypes.string.isRequired,
     wallet: PropTypes.string.isRequired,
-    label: PropTypes.string.isRequired,
     hashParams: PropTypes.object.isRequired,
 };
 
