@@ -3,7 +3,7 @@ import bridge from '@vkontakte/vk-bridge';
 import {View, ScreenSpinner, AdaptivityProvider, AppRoot, Root} from '@vkontakte/vkui';
 import '@vkontakte/vkui/dist/vkui.css';
 import qs from 'querystring';
-import {ERRORS} from './constants';
+import {wallets, ERRORS} from './constants';
 
 
 import Payment from './panels/Payment';
@@ -15,7 +15,7 @@ const App = () => {
     const [activeView, setActiveView] = useState('view1');
     const [popout, setPopout] = useState(<ScreenSpinner size='large'/>);
     const [errCase, setErrCase] = useState('');
-    const [group, setGroup] = useState('');
+    const [wallet, setWallet] = useState('');
     const [hashParams, setHashParams] = useState({});
 
     useEffect(() => {
@@ -31,11 +31,16 @@ const App = () => {
             const params = qs.parse(window.location.search.slice(1));
             if (params.vk_group_id) {
 
-                setGroup(params.vk_group_id);
-                const parsedHashParams = qs.parse(window.location.hash.slice(1));
-                setHashParams(parsedHashParams);
-                setActivePanel('payment');
-
+                if (wallets[params.vk_group_id]?.wallet) {
+                    setWallet(wallets[params.vk_group_id]?.wallet);
+                    const parsedHashParams = qs.parse(window.location.hash.slice(1));
+                    setHashParams(parsedHashParams);
+                    setActivePanel('payment');
+                }
+                else {
+                    setErrCase(ERRORS.NO_WALLET);
+                    setActivePanel('error');
+                }
             } else {
                 setErrCase(ERRORS.NO_GROUP);
                 setActivePanel('error');
@@ -56,7 +61,7 @@ const App = () => {
                     </View>
                     <View activePanel={activePanel} id="view2" popout={popout}>
                         <Error id='error' errCase={errCase}/>
-                        <Payment id='payment' group={group} hashParams={hashParams}/>
+                        <Payment id='payment' wallet={wallet} hashParams={hashParams}/>
                     </View>
                 </Root>
             </AppRoot>

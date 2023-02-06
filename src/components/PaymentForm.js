@@ -2,9 +2,8 @@ import React, {Fragment, useState, useEffect} from 'react';
 import {FormLayout, FormItem, Input, Button, Div, Textarea} from '@vkontakte/vkui';
 import PropTypes from "prop-types";
 import qs from 'querystring';
-import {wallets} from '../constants';
 
-const PaymentForm = ({id, group, hashParams}) => {
+const PaymentForm = ({id, wallet, hashParams}) => {
     const [sum, setSum] = useState(25);
     const [aucs, setAucs] = useState('');
     useEffect(() => {
@@ -12,7 +11,7 @@ const PaymentForm = ({id, group, hashParams}) => {
             setSum(hashParams.sum);
         }
         if (hashParams.aucs) {
-            setAucs(hashParams.aucs.slice(0, 512));
+            setAucs(hashParams.aucs.slice(0, 64));
         }
     }, []);
 
@@ -22,20 +21,22 @@ const PaymentForm = ({id, group, hashParams}) => {
                 e.preventDefault();
 
                 const params = {
-                    amountInteger: sum,
-                    amountFraction: 0,
-                    currency:643,
-                    'extra[\'comment\']': `${group}|${aucs}`,
-                    'extra[\'account\']': wallets.wallet,
-                    'blocked[0]': 'account',
-                    'blocked[1]': 'comment',
-                    'blocked[2]': 'sum',
+                    targets: 'Оплата комиссии',
+                    sum: sum,
+                    receiver: wallet,
+                    'quickpay-form': 'donate',
+                    paymentType: 'AC',
+                    label: aucs,
+                    'need-fio': false,
+                    'need-email': false,
+                    'need-phone': false,
+                    'need-address': false,
                 };
 
                 const stringified = qs.stringify(params);
                 const link = document.createElement('a');
                 link.setAttribute('target', 'about:blank');
-                link.href = `https://qiwi.com/payment/form/99?${stringified}`;
+                link.href = `https://yoomoney.ru/quickpay/confirm.xml?${stringified}`;
                 document.body.appendChild(link);
                 link.click();
                 link.remove();
@@ -47,8 +48,8 @@ const PaymentForm = ({id, group, hashParams}) => {
                         }
                     }}/>
                 </FormItem>
-                <FormItem top="Лоты" bottom='до 512 знаков'>
-                    <Textarea placeholder="Введите номера лотов через запятую" maxLength='512' value={aucs}
+                <FormItem top="Лоты" bottom='до 64 знаков'>
+                    <Textarea placeholder="Введите номера лотов через запятую" maxLength='64' value={aucs}
                               onInput={(e) => {
                                   if (e.target.validity.valid || e.target.value.length <= 0) {
                                       setAucs(e.target.value)
@@ -66,7 +67,7 @@ const PaymentForm = ({id, group, hashParams}) => {
 
 PaymentForm.propTypes = {
     id: PropTypes.string.isRequired,
-    group: PropTypes.string.isRequired,
+    wallet: PropTypes.string.isRequired,
     hashParams: PropTypes.object.isRequired,
 };
 
