@@ -21,6 +21,10 @@ export const wallets = {
     //commander
     '191019732': {
         wallet: '410018896391866'
+    },
+    //berserk
+    '217656801': {
+        wallet: '41001536219365'
     }
 };
 
