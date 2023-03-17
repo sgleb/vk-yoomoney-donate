@@ -22,10 +22,14 @@ export const wallets = {
     '191019732': {
         wallet: '410018896391866'
     },
-    //berserk
+    //berserk-classic
     '217656801': {
         wallet: '41001536219365'
-    }
+    },
+    //berserk-heroes
+    '218709395': {
+        wallet: '4100118120699528'
+    },
 };
 
 export const ERRORS = {
