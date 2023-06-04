@@ -3,9 +3,14 @@ import {FormLayout, FormItem, Input, Button, Div, Textarea} from '@vkontakte/vku
 import PropTypes from "prop-types";
 import qs from 'querystring';
 
+const constants = {
+    PAY: 'PAY',
+    LINK: 'LINK'
+}
 const PaymentForm = ({id, wallet, hashParams}) => {
     const [sum, setSum] = useState(25);
     const [aucs, setAucs] = useState('');
+    const [showLink, setShowLink] = useState(false);
     useEffect(() => {
         if (hashParams.sum) {
             setSum(hashParams.sum);
@@ -15,38 +20,55 @@ const PaymentForm = ({id, wallet, hashParams}) => {
         }
     }, []);
 
+    const getLink = () => {
+        const params = {
+            targets: 'Оплата комиссии',
+            sum: sum,
+            receiver: wallet,
+            'quickpay-form': 'donate',
+            paymentType: 'AC',
+            label: aucs,
+            'need-fio': false,
+            'need-email': false,
+            'need-phone': false,
+            'need-address': false,
+        };
+        const stringified = qs.stringify(params);
+        return `https://yoomoney.ru/quickpay/confirm.xml?${stringified}`;
+    }
+
     return (
         <Fragment>
             <FormLayout id={id} onSubmit={(e) => {
+                const submitter = e.nativeEvent.submitter.id
                 e.preventDefault();
 
-                const params = {
-                    targets: 'Оплата комиссии',
-                    sum: sum,
-                    receiver: wallet,
-                    'quickpay-form': 'donate',
-                    paymentType: 'AC',
-                    label: aucs,
-                    'need-fio': false,
-                    'need-email': false,
-                    'need-phone': false,
-                    'need-address': false,
-                };
+                switch (submitter) {
+                    case constants.PAY: {
+                        const link = document.createElement('a');
+                        link.setAttribute('target', 'about:blank');
+                        link.href = getLink();
+                        document.body.appendChild(link);
+                        link.click();
+                        link.remove();
+                        break;
+                    }
+                    case constants.LINK: {
+                        setShowLink(!showLink);
+                        break;
+                    }
+                }
 
-                const stringified = qs.stringify(params);
-                const link = document.createElement('a');
-                link.setAttribute('target', 'about:blank');
-                link.href = `https://yoomoney.ru/quickpay/confirm.xml?${stringified}`;
-                document.body.appendChild(link);
-                link.click();
-                link.remove();
             }}>
                 <FormItem top="Сумма">
                     <Input type="text" name="sum" pattern='[0-9]*' maxLength='5' value={sum} onInput={(e) => {
-                        if (e.target.validity.valid) {
+                        if (e.target.validity.valid || e.target.value.length <= 0) {
                             setSum(e.target.value)
                         }
-                    }}/>
+                        if (e.target.value.length <= 0) {
+                            setShowLink(false);
+                        }
+                    }} required/>
                 </FormItem>
                 <FormItem top="Лоты" bottom='до 64 знаков'>
                     <Textarea placeholder="Введите номера лотов через запятую" maxLength='64' value={aucs}
@@ -54,13 +76,20 @@ const PaymentForm = ({id, wallet, hashParams}) => {
                                   if (e.target.validity.valid || e.target.value.length <= 0) {
                                       setAucs(e.target.value)
                                   }
+                                  if (e.target.value.length <= 0) {
+                                      setShowLink(false);
+                                  }
                               }} required/>
                 </FormItem>
                 <FormItem>
                     <Div style={{display: "flex", justifyContent: "space-around"}}>
-                        <Button type="submit" size="m">Оплатить</Button></Div>
+                        <Button id={constants.PAY} type="submit" size="m">Оплатить</Button></Div>
+                    <Div style={{display: "flex", justifyContent: "space-around"}}>
+                        <Button id={constants.LINK} type="submit"
+                                size="m">{showLink ? 'Скрыть' : 'Показать'} ссылку</Button></Div>
                 </FormItem>
             </FormLayout>
+            {showLink ? <Textarea value={getLink()} onFocus={(e) => e.target.select()}/> : null}
         </Fragment>
     )
 };
