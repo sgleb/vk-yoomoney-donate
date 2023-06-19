@@ -30,6 +30,10 @@ export const wallets = {
     '218709395': {
         wallet: '4100118120699528'
     },
+    //berserk-classic2
+    '221158542':{
+        wallet: '4100118239930340'
+    },
 };
 
 export const ERRORS = {
